@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import cv2
 from mtcnn import MTCNN
 from PIL import Image
+from tensorflow.keras import optimizers
 
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.models import load_model
@@ -33,6 +34,8 @@ class FaceRecognition:
     BATCH_SIZE = 32
     training_generator = None
     NumberOfPersons = 8 # configurable
+
+    EPOCHS = 10 # for compile2
 
     model_path = "model"
     model_name = "fine_tuning.h5"
@@ -70,7 +73,7 @@ class FaceRecognition:
 
         data_generator = tf.keras.preprocessing.image.ImageDataGenerator(
             rescale=1. / 255,
-            validation_split=0.2,
+            validation_split=0.1,
             fill_mode="nearest",
             rotation_range=30
 
@@ -113,16 +116,24 @@ class FaceRecognition:
         base_model.trainable = False
 
         model = tf.keras.Sequential([
-            base_model,  # 1
-            tf.keras.layers.Conv2D(32, 3, activation='relu'),  # 2
-            tf.keras.layers.Dropout(0.2),  # 3
-            tf.keras.layers.GlobalAveragePooling2D(),  # 4
-            tf.keras.layers.Dense(NumberOfPersons, activation='softmax')  # 5 anzahl der Personen
+            base_model,
+            tf.keras.layers.Conv2D(32, 3, activation='relu'),
+            tf.keras.layers.Dropout(0.2),
+            tf.keras.layers.GlobalAveragePooling2D(),
+            tf.keras.layers.Dense(NumberOfPersons, activation='softmax')  # anzahl der Personen
         ])
 
-        model.compile(optimizer=tf.keras.optimizers.Adam(),  # 1
-                      loss='categorical_crossentropy',  # 2
-                      metrics=['accuracy'])  # 3
+        # Adam Algorithm
+        # model.compile(optimizer=tf.keras.optimizers.Adam(),
+        #               loss='categorical_crossentropy',
+        #               metrics=['accuracy'])
+
+        # DSG Algorithm
+        model.compile(
+            loss='categorical_crossentropy',
+            optimizer=optimizers.SGD(lr=1e-4, momentum=0.9, decay=1e-2 / EPOCHS),
+            metrics=["accuracy"]
+        )
 
         # To see the model summary in a tabular structure
         model.summary()
@@ -132,7 +143,7 @@ class FaceRecognition:
 
         # Train the model
         # We will do it in 10 Iterations
-        epochs = 10
+        epochs = 20
 
         # Fitting / Training the model
         history = model.fit(train_generator,
@@ -204,9 +215,17 @@ class FaceRecognition:
             np.save(os.path.join(model_path, class_names_file), class_names)
             #print("items from train_generator saved to /model")
 
+            #var 1
+            # model.compile(
+            #     loss='categorical_crossentropy',
+            #     optimizer=tf.keras.optimizers.Adam(1e-5),
+            #     metrics=["accuracy"]
+            # )
+
+            # var 2
             model.compile(
                 loss='categorical_crossentropy',
-                optimizer=tf.keras.optimizers.Adam(1e-5),
+                optimizer=optimizers.SGD(lr=1e-4, momentum=0.9, decay=1e-2 / 15),
                 metrics=["accuracy"]
             )
 
@@ -224,7 +243,7 @@ class FaceRecognition:
 
         # Continue Train the model
         history_fine = model.fit(train_generator,
-                                 epochs=5,
+                                 epochs=15, #todo
                                  validation_data=val_generator
                                  )
 

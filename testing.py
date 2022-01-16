@@ -55,7 +55,7 @@ def get_detected_face(filename, required_size=(224, 224)):
     return face_array, face
 
 #choose img to test prediction
-image_path = './testPrediction/test.jpg'
+image_path = './testPrediction/test1.jpg'
 k = model_prediction(image_path, os.path.join("model", "fine_tuning_class_names.npy"))
 print(f"detected class is {k}")
 
