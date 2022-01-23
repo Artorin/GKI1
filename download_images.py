@@ -54,3 +54,5 @@ for imagePath in paths.list_images(args["output"]):
     if delete:
         print("[INFO] deleting {}".format(imagePath))
         os.remove(imagePath)
+
+	# python download_images.py --urls urls.txt --output images/santa

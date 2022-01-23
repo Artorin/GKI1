@@ -10,7 +10,7 @@ import cv2
 
 def save_cropped_face(images_root_folder,
                       required_size=(224, 224),
-                      cropped_folder='dataset'):
+                      cropped_folder='dataset/dataset2/cropped'):
 
     if not exists(images_root_folder):
         return Exception("Input Images folder is not exist.")
@@ -62,6 +62,7 @@ def get_detected_face(filename, required_size=(224, 224)):
     image = image.resize(required_size)
     face_array = np.asarray(image)
     return face_array, face
+
 
 if __name__ == "__main__":
     save_cropped_face("images")

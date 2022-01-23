@@ -66,25 +66,27 @@ class FaceRecognition:
     if __name__ == '__main__':
 
 
-        print_hi('PyCharm')
+        #print_hi('PyCharm')
         base_dir = "./dataset" #
         IMAGE_SIZE = 224
         BATCH_SIZE = 5
 
         data_generator = tf.keras.preprocessing.image.ImageDataGenerator(
             rescale=1. / 255,
-            validation_split=0.1,
+            validation_split=0.1, # 90/10
             fill_mode="nearest",
             rotation_range=30
+            #shear_range = 0.2,
+            #zoom_range = 0.2,
 
         )
-
+        #training data
         train_generator = data_generator.flow_from_directory(
             base_dir,
             target_size=(IMAGE_SIZE, IMAGE_SIZE),
             batch_size=BATCH_SIZE,
             subset='training')
-
+        #validation data
         val_generator = data_generator.flow_from_directory(
             base_dir,
             target_size=(IMAGE_SIZE, IMAGE_SIZE),
@@ -230,11 +232,6 @@ class FaceRecognition:
             )
 
         # Compile the model
-        # Compile the model using a much lower training rate.
-        # Notice the parameter in Adam() function, parameter passed to Adam is the learning rate
-        # model.compile(loss='categorical_crossentropy',
-        #               optimizer=tf.keras.optimizers.Adam(1e-5),
-        #               metrics=['accuracy'])
 
         # Getting the summary of the final model
         model.summary()
