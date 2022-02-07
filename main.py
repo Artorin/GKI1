@@ -1,14 +1,9 @@
-from os.path import join, exists
-from os import mkdir, listdir
 import tensorflow as tf
 import os
 import numpy as np
 import matplotlib.pyplot as plt
 import cv2
-from mtcnn import MTCNN
-from PIL import Image
 from tensorflow.keras import optimizers
-
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.models import load_model
 from face_detection_operation import get_detected_face
@@ -33,25 +28,25 @@ class FaceRecognition:
     IMAGE_WIDTH = 224
     BATCH_SIZE = 32
     training_generator = None
-    NumberOfPersons = 8 # configurable
+    NumberOfPersons = 4 # configurable
 
     EPOCHS = 10 # for compile2
 
     model_path = "model"
     model_name = "fine_tuning.h5"
 
-    @staticmethod
-    def data_generator():
-        img_data_generator = ImageDataGenerator(
-            rescale=1. / 255,
-            # horizontal_flip=True,
-            fill_mode="nearest",
-            # zoom_range=0.3,
-            # width_shift_range=0.3,
-            # height_shift_range=0.3,
-            rotation_range=30
-        )
-        return img_data_generator
+    # @staticmethod
+    # def data_generator():
+    #     img_data_generator = ImageDataGenerator(
+    #         rescale=1. / 255,
+    #         # horizontal_flip=True,
+    #         fill_mode="nearest",
+    #         # zoom_range=0.3,
+    #         # width_shift_range=0.3,
+    #         # height_shift_range=0.3,
+    #         rotation_range=30
+    #     )
+    #     return img_data_generator
 
     @staticmethod
     def load_saved_model(model_path):
@@ -75,11 +70,15 @@ class FaceRecognition:
             rescale=1. / 255,
             validation_split=0.1, # 90/10
             fill_mode="nearest",
-            rotation_range=30
-            #shear_range = 0.2,
-            #zoom_range = 0.2,
-
+            rotation_range=30,
+            # shear_range = 0.2,
+            # zoom_range = 0.2,
+            # horizontal_flip=True,
+            # zoom_range=0.3,
+            # width_shift_range=0.3,
+            # height_shift_range=0.3,
         )
+
         #training data
         train_generator = data_generator.flow_from_directory(
             base_dir,
@@ -110,7 +109,7 @@ class FaceRecognition:
         # Resolution of images (Width , Height, Array of size 3 to accommodate RGB Colors)
         IMG_SHAPE = (IMAGE_SIZE, IMAGE_SIZE, 3)
 
-        # Hence, creating a model with EXCLUDING the top layer
+        # creating a model with excluding the top layer
         base_model = tf.keras.applications.MobileNetV2(input_shape=IMG_SHAPE,
                                                        include_top=False,
                                                        weights='imagenet')
@@ -206,6 +205,7 @@ class FaceRecognition:
             # )
             #training_generator - for testing.py
 
+            # names from Dataset
             class_names = train_generator.class_indices
             #
             class_names_file_reverse = model_name[:-3] + "_class_names_reverse.npy"
@@ -240,7 +240,7 @@ class FaceRecognition:
 
         # Continue Train the model
         history_fine = model.fit(train_generator,
-                                 epochs=15, #todo
+                                 epochs=15, # config
                                  validation_data=val_generator
                                  )
 
@@ -249,6 +249,7 @@ class FaceRecognition:
         class_names = train_generator.class_indices
         print("Model Saved to model/fine_tuning.h5")
 
+        # optional
         # tf.saved_model.model(model, saved_model_dir)
         converter = tf.lite.TFLiteConverter.from_keras_model(model)
         # //Use this if 238 fails

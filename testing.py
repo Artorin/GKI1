@@ -8,8 +8,12 @@ from mtcnn import MTCNN
 from PIL import Image
 from tensorflow.keras.models import load_model
 
-model_name = "fine_tuning.h5"
-model = FaceRecognition.load_saved_model(os.path.join("model", model_name))
+#model_name = "fine_tuning.h5"
+#model_name = 'Testmodell.h5'
+model_name = 'fine_tuning.h5'
+#model = FaceRecognition.load_saved_model(os.path.join("model/Models", model_name))
+model = FaceRecognition.load_saved_model(os.path.join("model/Models/FineTuningBig", model_name))
+model.summary()
 
 # filename = "test.jpg"
 # img = plt.imread(filename)
@@ -55,8 +59,8 @@ def get_detected_face(filename, required_size=(224, 224)):
     return face_array, face
 
 #choose img to test prediction
-image_path = './testPrediction/test1.jpg'
-k = model_prediction(image_path, os.path.join("model", "fine_tuning_class_names.npy"))
+image_path = './testPrediction/test4.jpg'
+k = model_prediction(image_path, os.path.join("model/Models/npys", "Testmodell_class_names.npy"))
 print(f"detected class is {k}")
 
 
